@@ -1,10 +1,10 @@
 import RPi.GPIO as GPIO
-import time, datetime
+import time
 from random import randrange
-from config import PIN_SETUP, SERIAL_DEVICE
+from config import PIN_SETUP
 from utils import next_index, prev_index, random_next_index
 from hardware import Hardware
-import serial
+
 
 class LightTilt(Hardware):
 
