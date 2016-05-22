@@ -24,7 +24,6 @@ class LightSensor(Hardware):
 	def start(self):
 		while 1:
 			dataline = self.get_dataline()
-			print "dataline {}".format(dataline)
 			try:
 				if int(dataline) > 33:
 					self.all_off()
@@ -41,8 +40,7 @@ class LightSensor(Hardware):
 			except ValueError:
 				pass
 			GPIO.output(self.key_to_pin_num[self.led_keys[2]], GPIO.HIGH)
-
-			time.sleep(0.2)
+			time.sleep(0.050)
 
 	def __init__(self, *args, **kwargs):
 		super(LightSensor, self).__init__(*args, **kwargs)

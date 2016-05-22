@@ -34,15 +34,15 @@ class LightTilt(Hardware):
 		while True:
 			if not GPIO.input(self.key_to_pin_num['tiltSwitchR']) and not self.ignore_switch:
 				self.go_to_light(prev_index)
-				time.sleep(0.01)
+				time.sleep(0.1)
 			if not GPIO.input(self.key_to_pin_num['tiltSwitchL']) and not self.ignore_switch:
 				self.go_to_light(next_index)
-				time.sleep(0.01)
+				time.sleep(0.1)
 			if not GPIO.input(self.key_to_pin_num['button']):
 				self.ignore_switch = not self.ignore_switch
 				if self.ignore_switch:
 					self.initial_state()
-			time.sleep(0.20)
+				time.sleep(0.20)
 
 	def __init__(self, *args, **kwargs):
 		super(LightTilt, self).__init__(*args, **kwargs)
