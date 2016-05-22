@@ -25,19 +25,22 @@ class LightSensor(Hardware):
 		while 1:
 			dataline = self.get_dataline()
 			print "dataline {}".format(dataline)
-			if int(dataline) > 33:
-				self.all_off()
-				GPIO.output(self.key_to_pin_num['1_ledGreen1'], GPIO.HIGH)
-				GPIO.output(self.key_to_pin_num['3_ledGreen2'], GPIO.HIGH)
-			elif int(dataline) > 66:
-				self.all_off()
-				GPIO.output(self.key_to_pin_num['1_ledGreen1'], GPIO.HIGH)
-				GPIO.output(self.key_to_pin_num['3_ledGreen2'], GPIO.HIGH)
-				GPIO.output(self.key_to_pin_num['0_ledRed1'], GPIO.HIGH)
-				GPIO.output(self.key_to_pin_num['4_ledRed2'], GPIO.HIGH)
-			else:
-				self.all_off()
-			GPIO.output(self.key_to_pin_num['2_ledYellow'], GPIO.HIGH)
+			try:
+				if int(dataline) > 33:
+					self.all_off()
+					GPIO.output(self.key_to_pin_num[self.led_keys[1]], GPIO.HIGH)
+					GPIO.output(self.key_to_pin_num[self.led_keys[3]], GPIO.HIGH)
+				if int(dataline) > 66:
+					self.all_off()
+					GPIO.output(self.key_to_pin_num[self.led_keys[0]], GPIO.HIGH)
+					GPIO.output(self.key_to_pin_num[self.led_keys[1]], GPIO.HIGH)
+					GPIO.output(self.key_to_pin_num[self.led_keys[3]], GPIO.HIGH)
+					GPIO.output(self.key_to_pin_num[self.led_keys[4]], GPIO.HIGH)
+				else:
+					self.all_off()
+			except ValueError:
+				pass
+			GPIO.output(self.key_to_pin_num[self.led_keys[2]], GPIO.HIGH)
 
 			time.sleep(0.2)
 
