@@ -1,0 +1,4 @@
+*.pyc
+supervisord.conf
+error.log
+hardware/*
