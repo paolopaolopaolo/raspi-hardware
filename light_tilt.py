@@ -2,7 +2,7 @@ import RPi.GPIO as GPIO
 import time
 from random import randrange
 from config import PIN_SETUP
-from utils import next_index, prev_index, random_next_index
+from utils import next_index, prev_index, random_next_index, main_loop
 from hardware import Hardware
 
 
@@ -28,25 +28,16 @@ class LightTilt(Hardware):
 		if self.debug:
 			print("self.led_index={}".format(self.led_index))
 		self.all_off()
-		GPIO.output(self.key_to_pin_num[self.led_keys[self.led_index]], GPIO.HIGH)
-
-	def go_to_previous_light(self):
-		self.go_to_light(prev_index)
-
-	def go_to_next_light(self):
-		self.go_to_light(next_index)
-
-	def go_to_random_light(self):
-		self.go_to_light(random_next_index)
+		GPIO.output(self.key_to_pin_num[self.led_keys[self.led_index]], GPIO.HIGH)	
 
 	def start(self):
 		while True:
 			if not GPIO.input(self.key_to_pin_num['tiltSwitchR']) and not self.ignore_switch:
-				self.go_to_previous_light()
-				time.sleep(0.1)
+				self.go_to_light(prev_index)
+				time.sleep(0.01)
 			if not GPIO.input(self.key_to_pin_num['tiltSwitchL']) and not self.ignore_switch:
-				self.go_to_next_light()
-				time.sleep(0.1)
+				self.go_to_light(next_index)
+				time.sleep(0.01)
 			if not GPIO.input(self.key_to_pin_num['button']):
 				self.ignore_switch = not self.ignore_switch
 				if self.ignore_switch:
@@ -68,12 +59,11 @@ def test():
 	print "Tests passed!"
 	GPIO.cleanup()
 
+@main_loop
 def start():
-	try:
-		light_tilt = LightTilt(PIN_SETUP)
-		light_tilt.start()
-	except KeyboardInterrupt:
-		GPIO.cleanup()
+	light_tilt = LightTilt(PIN_SETUP)
+	light_tilt.start()
+
 
 if __name__ == "__main__":
 	import sys
@@ -83,4 +73,4 @@ if __name__ == "__main__":
 		if 'start' in sys.argv:
 			start()
 	else:
-		main()
+		start()

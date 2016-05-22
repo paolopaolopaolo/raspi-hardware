@@ -1,3 +1,18 @@
+import RPi.GPIO as GPIO
+
+# Decorators
+
+def main_loop(func):
+	def wrapper(*args, **kwargs):
+		try:
+			func(*args, **kwargs)
+		except KeyboardInterrupt:
+			GPIO.cleanup()
+	return wrapper
+
+
+# Small Util functions
+
 def prev_index(index, array, cycle=False):
 	if index == 0:
 		if cycle:
@@ -6,6 +21,7 @@ def prev_index(index, array, cycle=False):
 	else:
 		return index - 1
 
+
 def next_index(index, array, cycle=False):
 	if index == len(array) - 1:
 		if cycle:
@@ -13,6 +29,7 @@ def next_index(index, array, cycle=False):
 		return index
 	else:
 		return index + 1
+
 
 def random_next_index(index, array):
 	last_index = index

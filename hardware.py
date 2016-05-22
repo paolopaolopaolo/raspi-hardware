@@ -55,6 +55,7 @@ def test():
 
 
 if __name__ == '__main__':
+	# Copy paste this boilerplate over to new projects
 	import sys
 	if len(sys.argv) > 1:
 		if 'test' in sys.argv:
