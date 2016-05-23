@@ -30,21 +30,23 @@ class LightSensor(Hardware):
                 print "{}".format(self.get_dataline())
             dataline = self.get_dataline()
             try:
-                if int(dataline) > 33 and int(dataline) < 81:
+                if int(dataline) < 200:
+                    self.all_off() 
+                    GPIO.output(self.key_to_pin_num[self.led_keys[2]], GPIO.HIGH)
+                elif (int(dataline) < 500):
                     self.all_off()
                     GPIO.output(self.key_to_pin_num[self.led_keys[1]], GPIO.HIGH)
+                    GPIO.output(self.key_to_pin_num[self.led_keys[2]], GPIO.HIGH)
                     GPIO.output(self.key_to_pin_num[self.led_keys[3]], GPIO.HIGH)
-                if int(dataline) > 80:
+                else:
                     self.all_off()
                     GPIO.output(self.key_to_pin_num[self.led_keys[0]], GPIO.HIGH)
                     GPIO.output(self.key_to_pin_num[self.led_keys[1]], GPIO.HIGH)
+                    GPIO.output(self.key_to_pin_num[self.led_keys[2]], GPIO.HIGH)
                     GPIO.output(self.key_to_pin_num[self.led_keys[3]], GPIO.HIGH)
                     GPIO.output(self.key_to_pin_num[self.led_keys[4]], GPIO.HIGH)
-                if int(dataline) < 34:
-                    self.all_off()
             except ValueError:
                 pass
-            GPIO.output(self.key_to_pin_num[self.led_keys[2]], GPIO.HIGH)
             time.sleep(0.050)
 
     def __init__(self, *args, **kwargs):
