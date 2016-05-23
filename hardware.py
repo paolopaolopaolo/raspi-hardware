@@ -32,7 +32,7 @@ class Hardware(object):
 
 def test():
     '''
-    Runs Unit Test
+    Runs Unit Test for Pin Setup
     '''
     pin_setup = {
             'button': (11, GPIO.IN, {'pull_up_down': GPIO.PUD_UP}),

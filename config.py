@@ -12,4 +12,4 @@ PIN_SETUP = {
     '3_ledGreen2': (24, GPIO.OUT)
 }
 
-SERIAL_DEVICE = '/dev/ttyACM1'
+SERIAL_DEVICE = '/dev/ttyACM0'

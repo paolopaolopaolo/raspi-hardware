@@ -8,6 +8,7 @@ import serial, time
 class LightSensor(Hardware):
 
     serial_device = None
+    debug = False
     led_keys = []
 
     def all_off(self):
@@ -22,20 +23,24 @@ class LightSensor(Hardware):
                 datafile.write("\n" + self.get_dataline())
 
     def start(self):
+        if self.debug:
+            print "led_keys: {}".format(self.led_keys)
         while 1:
+            if self.debug:
+                print "{}".format(self.get_dataline())
             dataline = self.get_dataline()
             try:
-                if int(dataline) > 33:
+                if int(dataline) > 33 and int(dataline) < 81:
                     self.all_off()
                     GPIO.output(self.key_to_pin_num[self.led_keys[1]], GPIO.HIGH)
                     GPIO.output(self.key_to_pin_num[self.led_keys[3]], GPIO.HIGH)
-                if int(dataline) > 66:
+                if int(dataline) > 80:
                     self.all_off()
                     GPIO.output(self.key_to_pin_num[self.led_keys[0]], GPIO.HIGH)
                     GPIO.output(self.key_to_pin_num[self.led_keys[1]], GPIO.HIGH)
                     GPIO.output(self.key_to_pin_num[self.led_keys[3]], GPIO.HIGH)
                     GPIO.output(self.key_to_pin_num[self.led_keys[4]], GPIO.HIGH)
-                else:
+                if int(dataline) < 34:
                     self.all_off()
             except ValueError:
                 pass
@@ -61,6 +66,11 @@ def start():
     ls = LightSensor(PIN_SETUP)
     ls.start()
 
+@main_loop
+def debug():
+    ls = LightSensor(PIN_SETUP, debug=True)
+    ls.start()
+
 if __name__ == '__main__':
     import sys
     if len(sys.argv) > 1:
@@ -68,3 +78,5 @@ if __name__ == '__main__':
             test()
         if 'start' in sys.argv:
             start()
+        if 'debug' in sys.argv:
+            debug()

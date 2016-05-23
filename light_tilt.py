@@ -50,6 +50,7 @@ class LightTilt(Hardware):
             if "led" in key:
                 self.led_keys.append(key)
         self.led_keys = sorted(self.led_keys)
+        self.all_off()
 
 def test():
     t = LightTilt(PIN_SETUP)
