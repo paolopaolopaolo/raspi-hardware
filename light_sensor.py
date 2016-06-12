@@ -25,7 +25,7 @@ class LightSensor(Hardware):
                 datafile.write("{},{}\n".format(datetime.datetime.now(), self.get_dataline()))
             time.sleep(0.050)
 
-    def data_to_light(dataline):
+    def data_to_light(self, dataline):
         try:
             data_int = int(dataline)
             top_key = 0
