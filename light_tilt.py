@@ -54,7 +54,9 @@ class LightTilt(Hardware):
 
 def test():
     t = LightTilt(PIN_SETUP)
-    assert(sorted(t.led_keys) == sorted(['0_ledRed1', '1_ledGreen1', '2_ledYellow', '3_ledGreen2', '4_ledRed2']))
+    assert(sorted(t.led_keys) == sorted(['0_ledYellow0', '1_ledRed1', '2_ledGreen1',
+                                         '3_ledYellow1', '4_ledGreen2', '5_ledRed2',
+                                         '6_ledYellow2']))
     assert (t.led_index == 0)
     assert (next_index(t.led_index, t.led_keys) == 1)
     print "Tests passed!"
