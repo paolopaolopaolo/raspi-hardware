@@ -4,6 +4,8 @@ from config import SERIAL_DEVICE, PIN_SETUP
 from hardware import Hardware
 from utils import main_loop
 import serial, time, datetime
+import requests
+import json
 
 class LightSensor(Hardware):
 
@@ -25,36 +27,55 @@ class LightSensor(Hardware):
                 datafile.write("{},{}\n".format(datetime.datetime.now(), self.get_dataline()))
             time.sleep(0.050)
 
+    def send_data_to_server(self):
+        user = os.getenv('SENSOR_USER', 'rpi')
+        password = os.getenv('PASSWORD', 'password')
+        response = requests.post(os.getenv('TOKEN_URL', 'http://192.168.1.52:8000/api/v1/api-token-auth/'),
+                                 data={'username':user, 'password':password})
+        token = json.loads(response.text).get('token', None)
+        headers = {'Authorization': 'Token {}'.format(token)}
+        while 1:
+            new_post = {'timestamp': datetime.datetime.now(), 'light_level': self.get_dataline()}
+            r = requests.post(os.getenv('LIGHT_URL', 'http://192.168.1.52:8000/api/v1/light/'), data=new_post, headers=headers)
+            print(r.text)
+        
+
     def data_to_light(self, dataline):
         try:
             data_int = int(dataline)
             top_key = 0
-            if data_int < 50:
+            if data_int < 10:
+                top_key = 0
+            elif data_int < 50:
                 top_key = 1
-            elif data_int < 100:
+            elif data_int < 230:
                 top_key = 2
-            elif data_int < 250:
+            elif data_int < 630:
                 top_key = 3
-            elif data_int < 650:
+            elif data_int < 830:
                 top_key = 4
-            elif data_int < 850:
+            elif data_int < 930:
                 top_key = 5
-            elif data_int < 950:
+            elif data_int < 980:
                 top_key = 6
             else:
                 top_key = 7
-            for key in self.led_keys[0:top_key]:
-                GPIO.output(self.key_to_pin_num[key], GPIO.HIGH)
+
+            if top_key == 0:
+                self.all_off()
+            else:
+                for key in self.led_keys[0:top_key]:
+                    GPIO.output(self.key_to_pin_num[key], GPIO.HIGH)
         except:
             pass
 
     def start(self):
         if self.debug:
-            print "led_keys: {}".format(self.led_keys)
+            print("led_keys: {}".format(self.led_keys))
         while 1:
             if not self.off:
                 if self.debug:
-                    print "{}".format(self.get_dataline())
+                    print("{}".format(self.get_dataline()))
                 dataline = self.get_dataline()
                 try:
                     self.all_off()
@@ -79,14 +100,16 @@ def test():
     ls = LightSensor({})
     assert(isinstance(ls.serial_device, serial.Serial))
     assert("\r\n" in ls.serial_device.readline())
-    print "Tests passed (current value: {})!".format(ls.serial_device.readline().rstrip('\r\n'))
+    print("Tests passed (current value: {})!".format(ls.serial_device.readline().rstrip('\r\n')))
 
 
 @main_loop
-def record(path):
+def record(path = None):
     ls = LightSensor(PIN_SETUP)
-    ls.write_dataline_to_file(path)
-
+    if path:
+        ls.write_dataline_to_file(path)
+    else:
+        ls.send_data_to_server()
 
 @main_loop
 def start():
@@ -108,4 +131,7 @@ if __name__ == '__main__':
         if 'debug' in sys.argv:
             debug()
         if 'record' in sys.argv:
-            record(sys.argv[2])
+            if len(sys.argv) > 2:
+                record(sys.argv[2])
+            else:
+                record()

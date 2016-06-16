@@ -20,9 +20,9 @@ class Hardware(object):
             self.key_to_pin_num[element] = arguments[0]
             GPIO.setup(*args, **kwargs)
             if self.debug:
-                print "GPIO.setup(*args={}, **kwargs={})".format(args, kwargs)
+                print("GPIO.setup(*args={}, **kwargs={})".format(args, kwargs))
         if self.debug:
-            print "key_to_pin_num:{}".format(self.key_to_pin_num)
+            print("key_to_pin_num:{}".format(self.key_to_pin_num))
 
     def __init__(self, pin_setup, **kwargs):
         for key, value in kwargs.iteritems():
@@ -51,7 +51,7 @@ def test():
                     'tiltSwitchL', 'tiltSwitchR'])
     assert (h.serial_device == "TEST_OBJECT")
     assert (h.debug == True)
-    print "Tests passed!"
+    print("Tests passed!")
 
 
 if __name__ == '__main__':
