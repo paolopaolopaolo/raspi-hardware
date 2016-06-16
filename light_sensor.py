@@ -19,7 +19,7 @@ class LightSensor(Hardware):
             GPIO.output(self.key_to_pin_num[led], GPIO.LOW)
 
     def get_dataline(self):
-        return self.serial_device.readline().strip("\r\n")
+        return self.serial_device.readline().decode('utf-8').strip("\r\n")
 
     def write_dataline_to_file(self, path):
         while 1:
@@ -99,8 +99,8 @@ class LightSensor(Hardware):
 def test():
     ls = LightSensor({})
     assert(isinstance(ls.serial_device, serial.Serial))
-    assert("\r\n" in ls.serial_device.readline())
-    print("Tests passed (current value: {})!".format(ls.serial_device.readline().rstrip('\r\n')))
+    assert("\r\n" in ls.serial_device.readline().decode('utf-8'))
+    print("Tests passed (current value: {})!".format(ls.serial_device.readline().decode('utf-8').rstrip('\r\n')))
 
 
 @main_loop

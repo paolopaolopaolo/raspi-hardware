@@ -9,7 +9,7 @@ class Hardware(object):
 
     def setup_pins(self, pin_setup):
         GPIO.setmode(GPIO.BCM)
-        for element, arguments in pin_setup.iteritems():
+        for element, arguments in pin_setup.items():
             args = []
             kwargs = {}
             for arg in arguments:
@@ -25,7 +25,7 @@ class Hardware(object):
             print("key_to_pin_num:{}".format(self.key_to_pin_num))
 
     def __init__(self, pin_setup, **kwargs):
-        for key, value in kwargs.iteritems():
+        for key, value in kwargs.items():
             setattr(self, key, value)
         self.pin_setup = pin_setup
         self.setup_pins(pin_setup)
