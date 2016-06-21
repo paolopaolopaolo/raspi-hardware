@@ -4,11 +4,13 @@ from config import SERIAL_DEVICE, PIN_SETUP
 from hardware import Hardware
 from utils import main_loop
 import serial, time, datetime
-import requests
 import json
+import asyncio
+import aiohttp
+import requests
 
 class LightSensor(Hardware):
-
+    event_loop = None
     serial_device = None
     off = False
     debug = False
@@ -27,18 +29,33 @@ class LightSensor(Hardware):
                 datafile.write("{},{}\n".format(datetime.datetime.now(), self.get_dataline()))
             time.sleep(0.050)
 
-    def send_data_to_server(self):
-        user = os.getenv('SENSOR_USER', 'rpi')
-        password = os.getenv('PASSWORD', 'password')
-        response = requests.post(os.getenv('TOKEN_URL', 'http://192.168.1.52:8000/api/v1/api-token-auth/'),
-                                 data={'username':user, 'password':password})
+    async def _send_data(self, headers):
+        dataline = self.get_dataline()
+        self.data_to_light(dataline)
+        new_post = {'timestamp': datetime.datetime.now().isoformat(), 'light_level': dataline}
+        print("new_post: {}".format(new_post))
+        with aiohttp.ClientSession() as session:
+            async with session.post(os.getenv('LIGHT_URL', ''), data=new_post, headers=headers) as resp:
+                print("post is posted: {}".format(await resp.json()))
+        await asyncio.sleep(0.05)
+
+    def send_data_to_server(self, future=None):
+        user = os.getenv('SENSOR_USER', '')
+        password = os.getenv('PASSWORD', '')
+        response = requests.post(os.getenv('TOKEN_URL', ''),
+                                 json={'username':user, 'password':password})
         token = json.loads(response.text).get('token', None)
         headers = {'Authorization': 'Token {}'.format(token)}
-        while 1:
-            new_post = {'timestamp': datetime.datetime.now(), 'light_level': self.get_dataline()}
-            r = requests.post(os.getenv('LIGHT_URL', 'http://192.168.1.52:8000/api/v1/light/'), data=new_post, headers=headers)
-            print(r.text)
-        
+        print("Connected: {}".format(token))
+        while True:
+            batch = 100
+            batch_tasks = []
+            while batch > 0:
+                task = self.event_loop.create_task(self._send_data(headers))
+                batch_tasks.append(task)
+                batch -= 1
+            self.event_loop.run_until_complete(asyncio.wait(batch_tasks))
+
 
     def data_to_light(self, dataline):
         try:
@@ -91,6 +108,7 @@ class LightSensor(Hardware):
     def __init__(self, *args, **kwargs):
         super(LightSensor, self).__init__(*args, **kwargs)
         self.serial_device = serial.Serial(baudrate=9600, port=SERIAL_DEVICE)
+        self.event_loop = asyncio.get_event_loop()
         for key in args[0].keys():
             if "led" in key:
                 self.led_keys.append(key)
@@ -105,11 +123,13 @@ def test():
 
 @main_loop
 def record(path = None):
+    print(os.environ)
     ls = LightSensor(PIN_SETUP)
     if path:
         ls.write_dataline_to_file(path)
     else:
         ls.send_data_to_server()
+
 
 @main_loop
 def start():

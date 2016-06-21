@@ -59,7 +59,7 @@ def test():
                                          '6_ledYellow2']))
     assert (t.led_index == 0)
     assert (next_index(t.led_index, t.led_keys) == 1)
-    print "Tests passed!"
+    print("Tests passed!")
     GPIO.cleanup()
 
 @main_loop
