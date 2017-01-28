@@ -2,3 +2,5 @@
 supervisord.conf
 error.log
 hardware/*
+build/*
+src/*

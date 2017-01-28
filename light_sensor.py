@@ -8,7 +8,6 @@ import json
 import asyncio
 import aiohttp
 import requests
-import threading
 
 class LightSensor(Hardware):
     event_loop = None
@@ -32,12 +31,12 @@ class LightSensor(Hardware):
 
     async def _send_data(self, headers):
         dataline = self.get_dataline()
-        self.data_to_light(dataline)
         new_post = {'timestamp': datetime.datetime.now().isoformat(), 'light_level': dataline}
         # Start up another of this co-routine before sending the request
         asyncio.ensure_future(self._send_data(headers))
         with aiohttp.ClientSession() as session:
             async with session.post(os.getenv('LIGHT_URL', ''), data=new_post, headers=headers) as resp:
+                print('Send Success! {}'.format(datetime.datetime.now()))
                 pass
 
     def send_data_to_server(self, future=None):
@@ -51,7 +50,6 @@ class LightSensor(Hardware):
         asyncio.ensure_future(self._send_data(headers))
         # Blocking call
         self.event_loop.run_forever()
-
 
     def data_to_light(self, dataline):
         try:
@@ -116,7 +114,6 @@ def test():
     assert("\r\n" in ls.serial_device.readline().decode('utf-8'))
     print("Tests passed (current value: {})!".format(ls.serial_device.readline().decode('utf-8').rstrip('\r\n')))
 
-
 @main_loop
 def record(path = None):
     ls = LightSensor(PIN_SETUP)
@@ -124,7 +121,6 @@ def record(path = None):
         ls.write_dataline_to_file(path)
     else:
         ls.send_data_to_server()
-
 
 @main_loop
 def start():
