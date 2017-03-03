@@ -15,7 +15,7 @@ to unit test.
 - Use `main_loop` decorator to wrap in `try/except` block that runs `GPIO.cleanup` after `KeyboardInterrupt`
 ```python
 # button_press.py
-from .hardware import Hardware
+from rpi_hardware import Hardware
 from .utils import main_loop
 import RPi.GPIO as GPIO
 import time
