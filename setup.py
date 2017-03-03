@@ -10,7 +10,7 @@ setup(
     license = "BSD",
     keywords = "RPi",
     url = "http://packages.python.org/an_example_pypi_project",
-    packages=['rpi_hardware', 'tests'],
+    packages=['rpi_hardware'],
     long_description=read('README.md'),
     classifiers=[
         "Development Status :: 3 - Alpha",
