@@ -2,33 +2,37 @@ import RPi.GPIO as GPIO
 
 class Hardware(object):
     '''
-    Hardware Base: Feed it a dictionary with Hashable keys and tuple values and each 
+    Hardware Base: Feed it a dictionary with Hashable keys and tuple values
+    Will save pins directly to the instance as attributes prefixed by "pin_"
     '''
     debug = False
-    key_to_pin_num = {}
 
     def setup_pins(self, pin_setup):
         GPIO.setmode(GPIO.BCM)
         for element, arguments in pin_setup.items():
             args = []
             kwargs = {}
+
             for arg in arguments:
                 if type(arg) is not dict:
                     args.append(arg)
                 else:
-                    kwargs = arg    
-            self.key_to_pin_num[element] = arguments[0]
+                    kwargs = arg
+
+            # Saves the pin as "pin_<pin name>"
+            setattr(self, "pin_".format(element), arguments[0])
+
+            # Setup the pin
             GPIO.setup(*args, **kwargs)
             if self.debug:
                 print("GPIO.setup(*args={}, **kwargs={})".format(args, kwargs))
-        if self.debug:
-            print("key_to_pin_num:{}".format(self.key_to_pin_num))
 
     def __init__(self, pin_setup, **kwargs):
         for key, value in kwargs.items():
             setattr(self, key, value)
         self.pin_setup = pin_setup
         self.setup_pins(pin_setup)
+
 
 def test():
     '''
@@ -44,11 +48,15 @@ def test():
             'ledRed1': (19, GPIO.OUT),
             'ledGreen2': (24, GPIO.OUT)
         }
+
     h = Hardware(pin_setup, serial_device="TEST_OBJECT", debug=True)
-    keys = sorted(h.key_to_pin_num.keys())
-    assert(keys == ['button', 'ledGreen1', 'ledGreen2',
-                    'ledRed1', 'ledRed2', 'ledYellow',
-                    'tiltSwitchL', 'tiltSwitchR'])
+    
+    # Compare h.pin_button, h.pin_tiltSwitchR, etc. with what we know they should be
+    pin_attributes = ["pin_{}".format(key) for key in pin_setup.keys()]
+    pin_numbers = [getattr(h, attribute) for attribute in pin_attributes]
+
+    assert (pin_numbers == [11, 18, 22, 21, 13, 23, 19, 24])
+
     assert (h.serial_device == "TEST_OBJECT")
     assert (h.debug == True)
     print("Tests passed!")
