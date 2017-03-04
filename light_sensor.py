@@ -1,13 +1,11 @@
 import RPi.GPIO as GPIO
 import os
 from config import SERIAL_DEVICE, PIN_SETUP
-from hardware import Hardware
-from utils import main_loop
+from rpi_hardware import Hardware, main_loop
 import serial, time, datetime
 import json
 import asyncio
-import aiohttp
-import requests
+import websockets
 
 class LightSensor(Hardware):
     event_loop = None
@@ -29,27 +27,17 @@ class LightSensor(Hardware):
                 datafile.write("{},{}\n".format(datetime.datetime.now(), self.get_dataline()))
             time.sleep(0.050)
 
-    async def _send_data(self, headers):
-        dataline = self.get_dataline()
-        new_post = {'timestamp': datetime.datetime.now().isoformat(), 'light_level': dataline}
-        # Start up another of this co-routine before sending the request
-        asyncio.ensure_future(self._send_data(headers))
-        with aiohttp.ClientSession() as session:
-            async with session.post(os.getenv('LIGHT_URL', ''), data=new_post, headers=headers) as resp:
-                print('Send Success! {}'.format(datetime.datetime.now()))
-                pass
+    async def _send_data(self):
+        async with websockets.connect(os.getenv('PUBLISH_SOCKET_LINK')) as ws:
+            import random
+            while True:
+                print(self.get_dataline())
+                dataline = '{}'.format(random.randrange(0, 1000))
+                await ws.send(dataline)
+                await asyncio.sleep(0.5)
 
-    def send_data_to_server(self, future=None):
-        user = os.getenv('SENSOR_USER', '')
-        password = os.getenv('PASSWORD', '')
-        response = requests.post(os.getenv('TOKEN_URL', ''),
-                                 json={'username':user, 'password':password})
-        token = json.loads(response.text).get('token', None)
-        headers = {'Authorization': 'Token {}'.format(token)}
-        print("Connected: {}".format(token))
-        asyncio.ensure_future(self._send_data(headers))
-        # Blocking call
-        self.event_loop.run_forever()
+    def send_data_to_server(self):
+        self.event_loop.run_until_complete(self._send_data())
 
     def data_to_light(self, dataline):
         try:

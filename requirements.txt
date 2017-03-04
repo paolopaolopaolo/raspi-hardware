@@ -1,5 +1,4 @@
-aiohttp==0.21.6
-chardet==2.3.0
-pyserial-py3k==2.5
-requests==2.10.0
-RPi.GPIO==0.5.11
+pyserial==3.2.1
+-e git+git@github.com:paolopaolopaolo/raspi-hardware.git@31134599fd0e654d858c4ca2d067c6a4c3aabe23#egg=rpi_hardware-develop
+RPi.GPIO==0.6.3
+websockets==3.2
