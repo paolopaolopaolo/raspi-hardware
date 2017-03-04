@@ -29,12 +29,10 @@ class LightSensor(Hardware):
 
     async def _send_data(self):
         async with websockets.connect(os.getenv('PUBLISH_SOCKET_LINK')) as ws:
-            import random
             while True:
-                print(self.get_dataline())
-                dataline = '{}'.format(random.randrange(0, 1000))
+                dataline = '{}'.format(self.get_dataline())
                 await ws.send(dataline)
-                await asyncio.sleep(0.5)
+                await asyncio.sleep(0.8)
 
     def send_data_to_server(self):
         self.event_loop.run_until_complete(self._send_data())
