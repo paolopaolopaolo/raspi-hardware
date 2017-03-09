@@ -1,16 +1,5 @@
 import RPi.GPIO as GPIO
 
-# Decorators
-
-def main_loop(func):
-    def wrapper(*args, **kwargs):
-        try:
-            func(*args, **kwargs)
-        except KeyboardInterrupt:
-            GPIO.cleanup()
-    return wrapper
-
-
 # Small Util functions
 
 def prev_index(index, array, cycle=False):

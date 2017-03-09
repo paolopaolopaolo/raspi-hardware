@@ -14,5 +14,5 @@ void loop() {
   Serial.println(lightLevel);
 
   //slow down the transmission for effective Serial communication.
-  delay(50);
+  delay(500);
 }

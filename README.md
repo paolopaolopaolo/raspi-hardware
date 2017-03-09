@@ -9,30 +9,44 @@ to unit test.
 ## Requirements:
 - RPi.GPIO
 - pyserial
+- pip
+
+## Setup:
+- Installation:
+```
+$ git clone git@github.com:paolopaolopaolo/raspi-hardware.git // OR 'git clone https://github.com/paolopaolopaolo/raspi-hardware.git'
+$ cd raspi-hardware
+$ pip install --editable .
+```
 
 ## Things you can do with this stuff
-- Inherit the `Hardware` class from `hardware.py` to create a project class
+- Inherit from the `Hardware` class 
 - Use `main_loop` decorator to wrap in `try/except` block that runs `GPIO.cleanup` after `KeyboardInterrupt`
+
 ```python
 # button_press.py
-from rpi_hardware import Hardware
-from .utils import main_loop
+from rpi_hardware import Hardware, main_loop
 import RPi.GPIO as GPIO
 import time
 
 class ButtonPress(Hardware):
-  
+  '''
+  Expects the PIN_SETUP to define the following:
+  * "button"
+  * "0_led_1"
+  '''
+
   is_light_on = False
   
   @main_loop
   def start(self):
     while True:
-      if GPIO.input(self.key_to_pin_num["button"]) == False: # self.key_to_pin_num is built-in dictionary
+      if GPIO.input(self.pin_button) == False:
         self.is_light_on = self.not is_light_on
         if self.is_light_on:
-          GPIO.output(self.key_to_pin_num['0_led1'], GPIO.HIGH)
+          GPIO.output(self.pin_0_led1, GPIO.HIGH)
         else:
-          GPIO.output(self.key_to_pin_num['0_led1'], GPIO.LOW)
+          GPIO.output(self.pin_0_led1, GPIO.LOW)
         time.sleep(0.2)
 ```
 
